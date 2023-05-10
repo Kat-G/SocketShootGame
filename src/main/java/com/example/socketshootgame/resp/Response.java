@@ -7,7 +7,7 @@ import com.example.socketshootgame.objects.Point;
 
 import java.util.ArrayList;
 
-public class ServerRespToClient {
+public class Response {
     public ArrayList<PlayerInfo> clients;
     public ArrayList<Point> arrows;
     public ArrayList<Point> targets;

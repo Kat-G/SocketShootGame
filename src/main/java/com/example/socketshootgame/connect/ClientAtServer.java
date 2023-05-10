@@ -2,8 +2,8 @@ package com.example.socketshootgame.connect;
 
 import com.example.socketshootgame.resp.ClientActions;
 import com.example.socketshootgame.resp.Request;
-import com.example.socketshootgame.resp.ServerRespToClient;
-import com.google.gson.Gson;
+import com.example.socketshootgame.resp.Sender;
+import com.example.socketshootgame.resp.Response;
 
 import java.io.*;
 import java.net.Socket;
@@ -11,11 +11,7 @@ import java.net.Socket;
 public class ClientAtServer implements Runnable{
     Socket socket;
     Server server;
-    InputStream inputStream;
-    OutputStream outputStream;
-    DataInputStream dataInputStream;
-    DataOutputStream dataOutputStream;
-    Gson gson = new Gson();
+    Sender sender;
     Model model = ModelBuilder.build();
     PlayerInfo clientData;
 
@@ -23,47 +19,31 @@ public class ClientAtServer implements Runnable{
         this.socket = socket;
         this.server = server;
         clientData = new PlayerInfo(playerName);
-        try {
-            outputStream = socket.getOutputStream();
-            dataOutputStream = new DataOutputStream(outputStream);
-        } catch (IOException ignored) { }
+        sender = new Sender(socket);
     }
     public String getPlayerName() {
         return clientData.getPlayerName();
     }
 
     public void sendInfoToClient() {
-        try {
-            ServerRespToClient serverResp = new ServerRespToClient();
-            serverResp.clients = model.getClients();
-            serverResp.arrows = model.getArrows();
-            serverResp.targets = model.getTargets();
-            serverResp.winner = model.getWinner();
-
-            String s = gson.toJson(serverResp);
-            dataOutputStream.writeUTF(s);
-        } catch (IOException ex) {
-        }
+        Response serverResp = new Response();
+        serverResp.clients = model.getClients();
+        serverResp.arrows = model.getArrows();
+        serverResp.targets = model.getTargets();
+        serverResp.winner = model.getWinner();
+        sender.sendResp(serverResp);
     }
-
-
 
     @Override
     public void run() {
         try {
-            inputStream = socket.getInputStream();
-            dataInputStream = new DataInputStream(inputStream);
-
             System.out.println("Cilent thread " + clientData.getPlayerName() + " started");
-
             model.addClient(clientData);
             server.bcast();
 
             while(true)
             {
-                String s = dataInputStream.readUTF();
-
-                Request msg = gson.fromJson(s, Request.class);
+                Request msg = sender.getRequest();
 
                 if(msg.getClientActions() == ClientActions.READY)
                 {

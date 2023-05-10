@@ -9,6 +9,7 @@ import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.objects.Arrow;
 import com.example.socketshootgame.objects.Point;
 import com.example.socketshootgame.objects.Info;
+import com.example.socketshootgame.resp.Sender;
 import com.google.gson.Gson;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -36,10 +37,8 @@ public class GameFrame implements IObserver {
     ArrayList<Circle> targets = new ArrayList<>();
 
     private String playerName;
-    private Gson gson = new Gson();
     private Socket socket;
-    private DataOutputStream dos;
-    private OutputStream os;
+    Sender sender;
 
     private Model m = ModelBuilder.build();
 
@@ -47,34 +46,23 @@ public class GameFrame implements IObserver {
         m.addObserver(this);
     }
 
-    private void sendRequest(Request msg)
-    {
-        try {
-            String s_msg = gson.toJson(msg);
-            dos.writeUTF(s_msg);
-        } catch (IOException ignored) { }
-    }
     public void dataInit(Socket socket, String playersName) {
         this.socket = socket;
         this.playerName = playersName;
-        try {
-            os = socket.getOutputStream();
-            dos = new DataOutputStream(os);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        sender = new Sender(socket);
+
     }
 
     public void onReady(MouseEvent mouseEvent) {
-        sendRequest(new Request(ClientActions.READY));
+        sender.sendRequest(new Request(ClientActions.READY));
     }
 
     public void onPause(MouseEvent mouseEvent) {
-        sendRequest(new Request(ClientActions.STOP));
+        sender.sendRequest(new Request(ClientActions.STOP));
     }
 
     public void onShoot(MouseEvent mouseEvent) {
-        sendRequest(new Request(ClientActions.SHOOT));
+        sender.sendRequest(new Request(ClientActions.SHOOT));
     }
 
     @Override
@@ -187,7 +175,6 @@ public class GameFrame implements IObserver {
 
                         if (a.get(i).getPlayerName().equals(playerName)){
                             b.getStyleClass().add("player-client");
-                            b.setText("Вы");
                         } else {
                             b.getStyleClass().add("player-connect");
                         }

@@ -3,8 +3,9 @@ package com.example.socketshootgame;
 import com.example.socketshootgame.connect.Model;
 import com.example.socketshootgame.connect.ModelBuilder;
 import com.example.socketshootgame.resp.Request;
+import com.example.socketshootgame.resp.Sender;
 import com.example.socketshootgame.resp.ServReactions;
-import com.example.socketshootgame.resp.ServerRespToClient;
+import com.example.socketshootgame.resp.Response;
 import com.google.gson.Gson;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -34,41 +35,23 @@ public class StartFrame {
     @FXML
     TextField nameField;
 
-    private void sendRequest(Request msg)
-    {
-        try {
-            String s_msg = gson.toJson(msg);
-            dos.writeUTF(s_msg);
-        } catch (IOException ignored) { }
-    }
-
     Model m = ModelBuilder.build();
     public void onConnect(MouseEvent mouseEvent) {
         try {
             ip = InetAddress.getLocalHost();
             socket = new Socket(ip, port);
 
-            os = socket.getOutputStream();
-            dos = new DataOutputStream(os);
-
-            sendRequest(new Request(nameField.getText()));
-
-            is = socket.getInputStream();
-            dis = new DataInputStream(is);
-            String s = dis.readUTF();
-            Request msg = gson.fromJson(s, Request.class);
+            Sender sender = new Sender(socket);
+            sender.sendRequest(new Request(nameField.getText()));
+            Request msg = sender.getRequest();
 
             if (msg.getServReactions() == ServReactions.Accept){
                 new Thread(
                         ()->
                         {
                             try {
-                                //is = socket.getInputStream();
-                                //dis = new DataInputStream(is);
                                 while (true) {
-                                    String r = dis.readUTF();
-                                    Gson gson = new Gson();
-                                    ServerRespToClient ra = gson.fromJson(r, ServerRespToClient.class);
+                                    Response ra = sender.getResp();
                                     m.setTargets(ra.targets);
                                     m.setClients(ra.clients);
                                     m.setArrows(ra.arrows);
@@ -84,7 +67,7 @@ public class StartFrame {
                 ).start();
                 openGamePage(mouseEvent);
             } else {
-                //alertError(response);
+                alertError(msg.getServReactions());
                 nameField.setText("");
             }
 
@@ -94,12 +77,23 @@ public class StartFrame {
 
     }
 
-    private void alertError(String response){
+    private void alertError(ServReactions reaction){
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Ошибка");
         alert.setHeaderText("Ошибка");
-        alert.setContentText(response);
-
+        switch (reaction)
+        {
+            case MaxConnectError:
+            {
+                alert.setContentText("Превышено допустимое количество игроков");
+                break;
+            }
+            case DuplicateNameError:
+            {
+                alert.setContentText("Данное имя уже занято");
+                break;
+            }
+        }
         alert.showAndWait();
     }
 

@@ -1,6 +1,7 @@
 package com.example.socketshootgame.connect;
 
 import com.example.socketshootgame.resp.Request;
+import com.example.socketshootgame.resp.Sender;
 import com.example.socketshootgame.resp.ServReactions;
 import com.google.gson.Gson;
 
@@ -17,20 +18,9 @@ public class Server {
     InetAddress ip = null;
     ExecutorService service = Executors.newFixedThreadPool(4); //ограничиваем кол-во клиентких потоков 4
     ArrayList<ClientAtServer> allClients = new ArrayList<>(); //массив клиентов
-    private Gson gson = new Gson();
-    private DataOutputStream dos;
-    private OutputStream os;
-    InputStream is;
-    DataInputStream dis;
-    Model model = ModelBuilder.build();
 
-    private void sendRequest(Request msg)
-    {
-        try {
-            String s_msg = gson.toJson(msg);
-            dos.writeUTF(s_msg);
-        } catch (IOException ignored) { }
-    }
+    Sender sender;
+    Model model = ModelBuilder.build();
 
     public void bcast(){ //отправка данных на клиенты
         allClients.forEach(ClientAtServer::sendInfoToClient);
@@ -47,14 +37,8 @@ public class Server {
             {
                 Socket cs;
                 cs = ss.accept();
-
-                os = cs.getOutputStream();
-                dos = new DataOutputStream(os);
-                is = cs.getInputStream();
-                dis = new DataInputStream(is);
-
-                String s = dis.readUTF();
-                Request msg = gson.fromJson(s, Request.class);
+                sender = new Sender(cs);
+                Request msg = sender.getRequest();
                 String respName = msg.getPlayerName();
                 if (tryAddClient(cs, respName)) { //попытка подключения клиента
                     System.out.println(respName + " Connected");
@@ -68,7 +52,7 @@ public class Server {
 
     private boolean tryAddClient(Socket sock, String name) {
          if (allClients.size() >= 4) {
-             sendRequest(new Request(ServReactions.MaxConnectError));
+             sender.sendRequest(new Request(ServReactions.MaxConnectError));
              return false;
          }
          if (allClients.isEmpty() || //если список клиентов пуст или не содержит такого же имени
@@ -76,13 +60,13 @@ public class Server {
                 .filter(clientAtServer -> clientAtServer.getPlayerName().equals(name))
                 .findFirst()
                 .orElse(null) == null) {
-             sendRequest(new Request(ServReactions.Accept));
+             sender.sendRequest(new Request(ServReactions.Accept));
              ClientAtServer c = new ClientAtServer(sock, this, name); //создание нового клиента
              allClients.add(c); //добавление в лист клиентов
              service.submit(c); //сообщаем серверу о подключении клиента
              return true;
          }
-        sendRequest(new Request(ServReactions.DuplicateNameError));
+        sender.sendRequest(new Request(ServReactions.DuplicateNameError));
         return false;
     }
 
