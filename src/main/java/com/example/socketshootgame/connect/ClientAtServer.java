@@ -1,7 +1,7 @@
 package com.example.socketshootgame.connect;
 
 import com.example.socketshootgame.resp.ClientActions;
-import com.example.socketshootgame.resp.ClientReqToServer;
+import com.example.socketshootgame.resp.Request;
 import com.example.socketshootgame.resp.ServerRespToClient;
 import com.google.gson.Gson;
 
@@ -63,7 +63,7 @@ public class ClientAtServer implements Runnable{
             {
                 String s = dataInputStream.readUTF();
 
-                ClientReqToServer msg = gson.fromJson(s, ClientReqToServer.class);
+                Request msg = gson.fromJson(s, Request.class);
 
                 if(msg.getClientActions() == ClientActions.READY)
                 {

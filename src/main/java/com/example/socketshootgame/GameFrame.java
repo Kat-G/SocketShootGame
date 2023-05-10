@@ -4,7 +4,7 @@ import com.example.socketshootgame.connect.PlayerInfo;
 import com.example.socketshootgame.connect.Model;
 import com.example.socketshootgame.connect.ModelBuilder;
 import com.example.socketshootgame.resp.ClientActions;
-import com.example.socketshootgame.resp.ClientReqToServer;
+import com.example.socketshootgame.resp.Request;
 import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.objects.Arrow;
 import com.example.socketshootgame.objects.Point;
@@ -47,7 +47,7 @@ public class GameFrame implements IObserver {
         m.addObserver(this);
     }
 
-    private void sendRequest(ClientReqToServer msg)
+    private void sendRequest(Request msg)
     {
         try {
             String s_msg = gson.toJson(msg);
@@ -66,15 +66,15 @@ public class GameFrame implements IObserver {
     }
 
     public void onReady(MouseEvent mouseEvent) {
-        sendRequest(new ClientReqToServer(ClientActions.READY));
+        sendRequest(new Request(ClientActions.READY));
     }
 
     public void onPause(MouseEvent mouseEvent) {
-        sendRequest(new ClientReqToServer(ClientActions.STOP));
+        sendRequest(new Request(ClientActions.STOP));
     }
 
     public void onShoot(MouseEvent mouseEvent) {
-        sendRequest(new ClientReqToServer(ClientActions.SHOOT));
+        sendRequest(new Request(ClientActions.SHOOT));
     }
 
     @Override

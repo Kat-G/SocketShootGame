@@ -5,6 +5,9 @@ public class PlayerInfo {
     private String playerName;
     private int  arrowsShoot = 0;
     private int pointsEarned = 0;
+    private boolean isReady = false;
+    private boolean onPause = false;
+    private boolean shooting = false;
 
     public PlayerInfo(String playerName) {
         this.playerName = playerName;
