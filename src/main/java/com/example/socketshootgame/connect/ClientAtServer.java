@@ -13,12 +13,12 @@ public class ClientAtServer implements Runnable{
     Server server;
     Sender sender;
     Model model = ModelBuilder.build();
-    PlayerInfo clientData;
+    Player clientData;
 
     public ClientAtServer(Socket socket, Server server, String playerName)  {
         this.socket = socket;
         this.server = server;
-        clientData = new PlayerInfo(playerName);
+        clientData = new Player(playerName);
         sender = new Sender(socket);
     }
     public String getPlayerName() {
@@ -64,7 +64,7 @@ public class ClientAtServer implements Runnable{
 
         }
     }
-    public PlayerInfo getClientData() {
+    public Player getClientData() {
         return clientData;
     }
 

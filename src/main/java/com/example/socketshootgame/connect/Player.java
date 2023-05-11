@@ -1,7 +1,7 @@
 package com.example.socketshootgame.connect;
 
 //информация о клиенте
-public class PlayerInfo {
+public class Player {
     private String playerName;
     private int  arrowsShoot = 0;
     private int pointsEarned = 0;
@@ -9,7 +9,7 @@ public class PlayerInfo {
     private boolean onPause = false;
     private boolean shooting = false;
 
-    public PlayerInfo(String playerName) {
+    public Player(String playerName) {
         this.playerName = playerName;
     }
 
@@ -36,6 +36,30 @@ public class PlayerInfo {
 
     public int getPoints() {
         return pointsEarned;
+    }
+
+    public boolean isReady() {
+        return isReady;
+    }
+
+    public void setReady(boolean ready) {
+        isReady = ready;
+    }
+
+    public boolean isOnPause() {
+        return onPause;
+    }
+
+    public void setOnPause(boolean onPause) {
+        this.onPause = onPause;
+    }
+
+    public boolean isShooting() {
+        return shooting;
+    }
+
+    public void setShooting(boolean shooting) {
+        this.shooting = shooting;
     }
 
     public void setArrowsShoot(int arrowsShoot) {

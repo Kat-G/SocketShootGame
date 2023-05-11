@@ -1,26 +1,26 @@
 package com.example.socketshootgame;
 
-import com.example.socketshootgame.connect.PlayerInfo;
+import com.example.socketshootgame.connect.Player;
 import com.example.socketshootgame.connect.Model;
 import com.example.socketshootgame.connect.ModelBuilder;
-import com.example.socketshootgame.resp.ClientActions;
-import com.example.socketshootgame.resp.Request;
+import com.example.socketshootgame.resp.*;
 import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.objects.Arrow;
 import com.example.socketshootgame.objects.Point;
 import com.example.socketshootgame.objects.Info;
-import com.example.socketshootgame.resp.Sender;
-import com.google.gson.Gson;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 
-import java.io.*;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -36,8 +36,13 @@ public class GameFrame implements IObserver {
     ArrayList<Arrow> arrows = new ArrayList<>();
     ArrayList<Circle> targets = new ArrayList<>();
 
+    @FXML
     private String playerName;
+    @FXML
+    private TextField textName;
     private Socket socket;
+    int port = 3124;
+    InetAddress ip = null;
     Sender sender;
 
     private Model m = ModelBuilder.build();
@@ -51,6 +56,63 @@ public class GameFrame implements IObserver {
         this.playerName = playersName;
         sender = new Sender(socket);
 
+    }
+    public void add(ActionEvent actionEvent) {
+        try {
+            ip = InetAddress.getLocalHost();
+            socket = new Socket(ip, port);
+
+            Sender sender = new Sender(socket);
+            sender.sendRequest(new Request(textName.getText()));
+            Request msg = sender.getRequest();
+
+            if (msg.getServReactions() == ServReactions.Accept){
+                new Thread(
+                        ()->
+                        {
+                            try {
+                                while (true) {
+                                    Response ra = sender.getResp();
+                                    m.setTargets(ra.targets);
+                                    m.setClients(ra.clients);
+                                    m.setArrows(ra.arrows);
+                                    m.setWinner(ra.winner);
+                                    m.update();
+                                }
+
+                            } catch (IOException ex) {
+
+                            }
+
+                        }
+                ).start();
+                dataInit(socket,textName.getText());
+            } else {
+                alertError(msg.getServReactions());
+                textName.setText("");
+            }
+
+        } catch (IOException ignored) {   }
+    }
+
+    private void alertError(ServReactions reaction){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Ошибка");
+        alert.setHeaderText("Ошибка");
+        switch (reaction)
+        {
+            case MaxConnectError:
+            {
+                alert.setContentText("Превышено допустимое количество игроков");
+                break;
+            }
+            case DuplicateNameError:
+            {
+                alert.setContentText("Данное имя уже занято");
+                break;
+            }
+        }
+        alert.showAndWait();
     }
 
     public void onReady(MouseEvent mouseEvent) {
@@ -141,7 +203,7 @@ public class GameFrame implements IObserver {
 
     }
 
-    private void updatePlayersInfo(ArrayList<PlayerInfo> a) {
+    private void updatePlayersInfo(ArrayList<Player> a) {
         if (a == null || a.size() == 0) return;
         Platform.runLater(new Runnable(){
             @Override
@@ -162,7 +224,7 @@ public class GameFrame implements IObserver {
 
     }
 
-    private void updatePlayers(ArrayList<PlayerInfo> a) {
+    private void updatePlayers(ArrayList<Player> a) {
         if (a == null || a.size() == 0 || players.size() == a.size()) return;
         Platform.runLater(new Runnable(){
             @Override
@@ -188,4 +250,5 @@ public class GameFrame implements IObserver {
 
 
     }
+
 }

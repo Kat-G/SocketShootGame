@@ -1,6 +1,6 @@
 package com.example.socketshootgame.objects;
 
-import com.example.socketshootgame.connect.PlayerInfo;
+import com.example.socketshootgame.connect.Player;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -8,7 +8,7 @@ import javafx.scene.text.Text;
 
 public class Info {
 
-    public static VBox createVbox(PlayerInfo cd) {
+    public static VBox createVbox(Player cd) {
         VBox vb = new VBox();
         vb.setAlignment(Pos.TOP_CENTER);
         vb.prefWidth(250);

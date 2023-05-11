@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class Model {
 
     private final ArrayList<IObserver> observers = new ArrayList<>(); //массив обозревателей
-    private ArrayList<PlayerInfo> players = new ArrayList<>(); //массив клентов
+    private ArrayList<Player> players = new ArrayList<>(); //массив клентов
     private ArrayList<Point> targets = new ArrayList<>(); //массив мишеней
     private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
     private final ArrayList<String> ready = new ArrayList<>(); //массив готовых к игре клиентов
@@ -106,7 +106,7 @@ public class Model {
                                 for (int i = 0; i < shooting.size(); i++) {
                                     int I = i;
                                     if (shooting.get(I) == null) break;
-                                    PlayerInfo client = players.stream()
+                                    Player client = players.stream()
                                             .filter(clientData -> clientData.getPlayerName().equals(shooting.get(I)))
                                             .findFirst()
                                             .orElse(null);
@@ -149,12 +149,12 @@ public class Model {
         arrows.clear();
         onPause.clear();
         shooting.clear();
-        players.forEach(PlayerInfo::reset);
+        players.forEach(Player::reset);
         this.init();
     }
 
     //проверка на выстрел
-    private synchronized void takeShoot(Point p, PlayerInfo player) {
+    private synchronized void takeShoot(Point p, Player player) {
         ShootState shootState = checkHit(p); //проверка на попадание
         switch (shootState) {
             case BIG_SHOT: { player.increasePointsEarned(1); break;}
@@ -203,7 +203,7 @@ public class Model {
     public void setWinner(String winner) {
         this.winner = winner;
     }
-    public void addClient(PlayerInfo clientData) {
+    public void addClient(Player clientData) {
         players.add(clientData);
         this.arrowsCountUpdate();
     }
@@ -212,11 +212,11 @@ public class Model {
         observers.add(o);
     }
 
-    public ArrayList<PlayerInfo> getClients() {
+    public ArrayList<Player> getClients() {
         return players;
     }
 
-    public void setClients(ArrayList<PlayerInfo> clientArrayList) {
+    public void setClients(ArrayList<Player> clientArrayList) {
         this.players = clientArrayList;
     }
 
