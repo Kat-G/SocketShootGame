@@ -12,7 +12,7 @@ public class Model {
     private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
     //private final ArrayList<String> ready = new ArrayList<>(); //массив готовых к игре клиентов
     //private final ArrayList<String> onPause = new ArrayList<>(); //массив клиентов на паузе
-    private final ArrayList<String> shooting = new ArrayList<>();
+    //private final ArrayList<String> shooting = new ArrayList<>();
     int ready;
     int pause;
     private String winner = null;
@@ -43,13 +43,18 @@ public class Model {
         }
     }
 
-    public void ready(Server s, String name) {
-        ready = 0;
+    public Player findPlayer(String name){
         var player = players.stream()
                 .filter(clientData -> clientData.getPlayerName().equals(name))
                 .findFirst()
                 .orElse(null); //получаем клиента
         assert player != null;
+        return player;
+    }
+
+    public void ready(Server s, String name) {
+        ready = 0;
+        var player = findPlayer(name);
         player.setReady();
         for (Player p : players )
         {
@@ -74,21 +79,15 @@ public class Model {
     // Запрос на паузу
     public void pause(String name) {
         pause = players.size();
-        var player = players.stream()
-                .filter(clientData -> clientData.getPlayerName().equals(name))
-                .findFirst()
-                .orElse(null); //получаем клиента
-        assert player != null;
+        var player = findPlayer(name);
         player.setOnPause();
-        System.out.println(player.isOnPause());
         for (Player p : players )
         {
             if (!p.isOnPause()){
                 pause--;
             }
         }
-        System.out.println(pause);
-        if (pause== 0){ //если список пуст
+        if (pause == 0){ //если список пуст
             synchronized(this) {
                 notifyAll();         //пробуждаем потоки
             }
@@ -107,16 +106,15 @@ public class Model {
     }
 
     // Запрос на выстрел
-    public void shoot(String playerName) {
-        var player = players.stream()
-                .filter(clientData -> clientData.getPlayerName().equals(playerName))
-                .findFirst()
-                .orElse(null); //получаем клиента
-        assert player != null;
+    public void shoot(String name) {
+        var player = findPlayer(name);
+        player.setShooting();
+        player.increaseArrowsShoot(1);
+        /*
         if (! shooting.contains(player.getPlayerName())){ //если он еще не стреляет
             shooting.add(player.getPlayerName()); //добавляем его в лист стреляющих
             player.increaseArrowsShoot(1); //увеличивем число выстрелов игрока
-        }
+        }*/
     }
 
     //запуск игры
@@ -141,6 +139,14 @@ public class Model {
                                 }
                             }
                         }
+                        for (Player player: players) {
+                            if (player.isShooting()){
+                                int index = players.indexOf(player);
+                                Point p = arrows.get(index); //получаем координату стрелы
+                                p.setX(p.getX() + arr_speed); //изменяем координату Х стрелы
+                                takeShoot(p, player); //проверка на выстрел
+                            }
+                        /*
                         if (shooting.size() != 0) { //если список стреляющих не пуст
 
                                 for (int i = 0; i < shooting.size(); i++) {
@@ -155,7 +161,7 @@ public class Model {
                                     p.setX(p.getX() + arr_speed); //изменяем координату Х стрелы
                                     takeShoot(p, client); //проверка на выстрел
                                 }
-
+                            */
                         }
                         //передвижение мишеней
                         Point big = targets.get(0);
@@ -190,7 +196,7 @@ public class Model {
         arrows.clear();
         //onPause.clear();
         pause = 0;
-        shooting.clear();
+        //shooting.clear();
         players.forEach(Player::reset);
         this.init();
     }
@@ -205,7 +211,8 @@ public class Model {
         }
         p.setX(0); //возврат стрелы
         //очистка списка
-        shooting.remove(player.getPlayerName());
+        player.setShooting();
+        //shooting.remove(player.getPlayerName());
         checkWinner();
     }
 

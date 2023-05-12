@@ -62,7 +62,7 @@ public class Player {
     }
 
     public void setShooting() {
-        this.shooting = true;
+        shooting = !shooting;
     }
 
     public void setArrowsShoot(int arrowsShoot) {
