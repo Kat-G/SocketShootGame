@@ -10,10 +10,10 @@ public class Model {
     private ArrayList<Player> players = new ArrayList<>(); //массив клентов
     private ArrayList<Point> targets = new ArrayList<>(); //массив мишеней
     private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
-    private final ArrayList<String> ready = new ArrayList<>(); //массив готовых к игре клиентов
+    //private final ArrayList<String> ready = new ArrayList<>(); //массив готовых к игре клиентов
     private final ArrayList<String> onPause = new ArrayList<>(); //массив клиентов на паузе
     private final ArrayList<String> shooting = new ArrayList<>();
-
+    int ready;
     private String winner = null;
     private static int points_to_win = 2;
     private boolean Reset = true;
@@ -43,13 +43,31 @@ public class Model {
     }
 
     public void ready(Server s, String name) {
+        ready = 0;
+        var player = players.stream()
+                .filter(clientData -> clientData.getPlayerName().equals(name))
+                .findFirst()
+                .orElse(null); //получаем клиента
+        assert player != null;
+        player.setReady();
+        for (Player p : players )
+        {
+            if (p.isReady()){
+                ready++;
+            }
+        }
+        if (ready == players.size()) {
+            Reset = false;
+            start(s);
+        }
+        /*
         if (ready.isEmpty() || !ready.contains(name)) { ready.add(name); }
         else { ready.remove(name); }
 
         if (ready.size() == players.size()) {
             Reset = false;
             start(s);
-        }
+        }*/
     }
 
     // Запрос на паузу
@@ -144,7 +162,8 @@ public class Model {
 
     private void restart() {
         Reset = true;
-        ready.clear();
+        //ready.clear();
+        ready = 0;
         targets.clear();
         arrows.clear();
         onPause.clear();

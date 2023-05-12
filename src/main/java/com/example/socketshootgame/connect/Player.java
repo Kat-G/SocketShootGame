@@ -20,6 +20,9 @@ public class Player {
     public void reset() {
         arrowsShoot = 0;
         pointsEarned = 0;
+        isReady = false;
+        onPause = false;
+        shooting = false;
     }
 
     public void increasePointsEarned(int a) {
@@ -42,24 +45,24 @@ public class Player {
         return isReady;
     }
 
-    public void setReady(boolean ready) {
-        isReady = ready;
+    public void setReady() {
+        isReady = !isReady;
     }
 
     public boolean isOnPause() {
         return onPause;
     }
 
-    public void setOnPause(boolean onPause) {
-        this.onPause = onPause;
+    public void setOnPause() {
+        onPause = !onPause;
     }
 
     public boolean isShooting() {
         return shooting;
     }
 
-    public void setShooting(boolean shooting) {
-        this.shooting = shooting;
+    public void setShooting() {
+        this.shooting = true;
     }
 
     public void setArrowsShoot(int arrowsShoot) {
