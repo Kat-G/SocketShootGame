@@ -11,9 +11,10 @@ public class Model {
     private ArrayList<Point> targets = new ArrayList<>(); //массив мишеней
     private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
     //private final ArrayList<String> ready = new ArrayList<>(); //массив готовых к игре клиентов
-    private final ArrayList<String> onPause = new ArrayList<>(); //массив клиентов на паузе
+    //private final ArrayList<String> onPause = new ArrayList<>(); //массив клиентов на паузе
     private final ArrayList<String> shooting = new ArrayList<>();
     int ready;
+    int pause;
     private String winner = null;
     private static int points_to_win = 2;
     private boolean Reset = true;
@@ -72,6 +73,27 @@ public class Model {
 
     // Запрос на паузу
     public void pause(String name) {
+        pause = players.size();
+        var player = players.stream()
+                .filter(clientData -> clientData.getPlayerName().equals(name))
+                .findFirst()
+                .orElse(null); //получаем клиента
+        assert player != null;
+        player.setOnPause();
+        System.out.println(player.isOnPause());
+        for (Player p : players )
+        {
+            if (!p.isOnPause()){
+                pause--;
+            }
+        }
+        System.out.println(pause);
+        if (pause== 0){ //если список пуст
+            synchronized(this) {
+                notifyAll();         //пробуждаем потоки
+            }
+        }
+        /*
         if (onPause.contains(name)) { //если клиент уже в списке паузы
             onPause.remove(name);     // удаляем его из списка
             if (onPause.size() == 0){ //если список пуст
@@ -81,7 +103,7 @@ public class Model {
             }
         } else {
             onPause.add(name); //иначе в список ожидания
-        }
+        }*/
     }
 
     // Запрос на выстрел
@@ -110,7 +132,7 @@ public class Model {
                             winner = null;
                             break;
                         }
-                        if (onPause.size() != 0) {  //если список паузы не пуст
+                        if (pause != 0) {  //если список паузы не пуст
                             synchronized(this) {
                                 try {
                                     wait();             //ожидаем
@@ -166,7 +188,8 @@ public class Model {
         ready = 0;
         targets.clear();
         arrows.clear();
-        onPause.clear();
+        //onPause.clear();
+        pause = 0;
         shooting.clear();
         players.forEach(Player::reset);
         this.init();
