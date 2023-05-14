@@ -87,6 +87,7 @@ public class GameFrame implements IObserver {
                         }
                 ).start();
                 dataInit(socket,textName.getText());
+                textName.setText("");
             } else {
                 alertError(msg.getServReactions());
                 textName.setText("");

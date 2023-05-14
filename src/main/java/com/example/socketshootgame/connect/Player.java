@@ -62,7 +62,13 @@ public class Player {
     }
 
     public void setShooting() {
-        shooting = !shooting;
+        if (!shooting)
+        {
+            shooting = true;
+            increaseArrowsShoot(1);
+        }
+        else
+            shooting = false;
     }
 
     public void setArrowsShoot(int arrowsShoot) {
