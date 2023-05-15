@@ -2,10 +2,11 @@ package com.example.socketshootgame.connect;
 
 //import com.example.socketshootgame.hibernate.DataBaseHibernate;
 //import com.example.socketshootgame.hibernate.IDataBase;
+import com.example.socketshootgame.connect.model.Model;
+import com.example.socketshootgame.connect.model.ModelBuilder;
 import com.example.socketshootgame.resp.Request;
 import com.example.socketshootgame.resp.Sender;
 import com.example.socketshootgame.resp.ServReactions;
-import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.InetAddress;

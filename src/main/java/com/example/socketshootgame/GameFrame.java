@@ -1,8 +1,8 @@
 package com.example.socketshootgame;
 
 import com.example.socketshootgame.connect.Player;
-import com.example.socketshootgame.connect.Model;
-import com.example.socketshootgame.connect.ModelBuilder;
+import com.example.socketshootgame.connect.model.Model;
+import com.example.socketshootgame.connect.model.ModelBuilder;
 import com.example.socketshootgame.resp.*;
 import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.objects.Arrow;

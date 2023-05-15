@@ -1,4 +1,6 @@
-package com.example.socketshootgame.connect;
+package com.example.socketshootgame.connect.controllers;
+
+import com.example.socketshootgame.connect.Player;
 
 import java.util.ArrayList;
 

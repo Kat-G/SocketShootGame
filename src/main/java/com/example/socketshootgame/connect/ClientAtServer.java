@@ -1,5 +1,7 @@
 package com.example.socketshootgame.connect;
 
+import com.example.socketshootgame.connect.model.Model;
+import com.example.socketshootgame.connect.model.ModelBuilder;
 import com.example.socketshootgame.resp.ClientActions;
 import com.example.socketshootgame.resp.Request;
 import com.example.socketshootgame.resp.Sender;

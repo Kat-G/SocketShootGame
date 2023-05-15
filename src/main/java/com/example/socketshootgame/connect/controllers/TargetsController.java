@@ -1,4 +1,4 @@
-package com.example.socketshootgame.connect;
+package com.example.socketshootgame.connect.controllers;
 
 import com.example.socketshootgame.objects.Point;
 
@@ -7,24 +7,24 @@ import java.util.ArrayList;
 public class TargetsController {
     private ArrayList<Point> targets = new ArrayList<>(); //массив мишеней
     //Point big, small;
-    int big_speed = 5;
-    int small_speed = 10;
+    private int big_speed = 5;
+    private int small_speed = 10;
 
-    TargetsController(){   }
+    public TargetsController(){   }
 
-    void init(){
+    public void init(){
         targets.add(new Point(400,280, 50));
         targets.add(new Point(500,280, 25));
     }
-    ArrayList<Point> getTargets() {
+    public ArrayList<Point> getTargets() {
         return targets;
     }
 
-    void setTargets(ArrayList<Point> targetArrayList){
+    public void setTargets(ArrayList<Point> targetArrayList){
         this.targets = targetArrayList;
     }
 
-    void move(){
+    public void move(){
         Point big = targets.get(0);
         Point small = targets.get(1);
 
@@ -38,7 +38,7 @@ public class TargetsController {
         big.setY(big.getY() + big_speed);
     }
 
-    void reset(){
+    public void reset(){
         targets.clear();
     }
 

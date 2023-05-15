@@ -1,7 +1,14 @@
-package com.example.socketshootgame.connect;
+package com.example.socketshootgame.connect.model;
 
 //import com.example.socketshootgame.hibernate.IDataBase;
 //import com.example.socketshootgame.hibernate.PlayersTable;
+import com.example.socketshootgame.connect.IObserver;
+import com.example.socketshootgame.connect.Player;
+import com.example.socketshootgame.connect.Server;
+import com.example.socketshootgame.connect.ShootState;
+import com.example.socketshootgame.connect.controllers.ArrowController;
+import com.example.socketshootgame.connect.controllers.PlayersController;
+import com.example.socketshootgame.connect.controllers.TargetsController;
 import com.example.socketshootgame.objects.Point;
 
 import java.util.ArrayList;
@@ -9,10 +16,10 @@ import java.util.ArrayList;
 public class Model {
 
     private final ArrayList<IObserver> observers = new ArrayList<>(); //массив обозревателей
-    //private ArrayList<Player> players = new ArrayList<>(); //массив клентов
     private PlayersController players = new PlayersController();
     private TargetsController targets = new TargetsController();
-    private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
+    //private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
+    private ArrowController arrows = new ArrowController();
     int ready;
     int pause;
     private String winner = null;
@@ -46,39 +53,21 @@ public class Model {
 
     // Добавление клиентам стрел
     private synchronized void arrowsCountUpdate() {
-        arrows.clear();
+        //arrows.clear();
+        arrows.reset();
 
-        //int clientsCount = players.size();
         int clientsCount = players.getSize();
         for (int i = 1; i <= clientsCount; i++) {
             int step = 450 / (clientsCount + 1);
-            arrows.add(new Point(0, step * i, 100));
+            //arrows.add(new Point(0, step * i, 100));
+            arrows.addArrow(new Point(0, step * i, 100));
         }
     }
 
-    /*
-    public Player findPlayer(String name){
-        var player = players.stream()
-                .filter(clientData -> clientData.getPlayerName().equals(name))
-                .findFirst()
-                .orElse(null); //получаем клиента
-        assert player != null;
-        return player;
-    }*/
 
     public void ready(Server s, String name) {
         ready = players.getReadySize(name);
-        /*
-        ready = 0;
-        var player = findPlayer(name);
-        player.setReady();
-        for (Player p : players )
-        {
-            if (p.isReady()){
-                ready++;
-            }
-        }*/
-        //if (ready == players.size()) {
+
         if (ready == players.getSize()) {
             Reset = false;
             start(s);
@@ -88,16 +77,7 @@ public class Model {
     // Запрос на паузу
     public void pause(String name) {
         pause = players.getPauseSize(name);
-        /*
-        pause = players.size();
-        var player = findPlayer(name);
-        player.setOnPause();
-        for (Player p : players )
-        {
-            if (!p.isOnPause()){
-                pause--;
-            }
-        }*/
+
         if (pause == 0){ //если список пуст
             synchronized(this) {
                 notifyAll();         //пробуждаем потоки
@@ -136,9 +116,13 @@ public class Model {
                         for (Player player: players.getPlayers()) {
                             if (player.isShooting()){
                                 int index = players.getPlayers().indexOf(player);
+                                /*
                                 Point p = arrows.get(index); //получаем координату стрелы
                                 p.setX(p.getX() + arr_speed); //изменяем координату Х стрелы
                                 takeShoot(p, player); //проверка на выстрел
+                                */
+                                arrows.tryShoot(index,player,targets);
+                                checkWinner();
                             }
                         }
                         //передвижение мишеней
@@ -159,10 +143,9 @@ public class Model {
     private void restart() {
         Reset = true;;
         targets.reset();
+        //arrows.clear();
+        arrows.reset();
 
-        arrows.clear();
-
-        //players.forEach(Player::reset);
         players.reset();
         this.init();
         //this.init(db);
@@ -252,11 +235,13 @@ public class Model {
     }
 
     public ArrayList<Point> getArrows() {
-        return arrows;
+        //return arrows;
+        return arrows.getArrows();
     }
 
     public void setArrows(ArrayList<Point> arrowArrayList) {
-        this.arrows = arrowArrayList;
+        //this.arrows = arrowArrayList;
+        this.arrows.setArrows(arrowArrayList);
     }
 
 

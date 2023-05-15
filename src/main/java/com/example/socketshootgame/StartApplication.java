@@ -1,10 +1,9 @@
 package com.example.socketshootgame;
 
-import com.example.socketshootgame.connect.Model;
-import com.example.socketshootgame.connect.ModelBuilder;
+import com.example.socketshootgame.connect.model.Model;
+import com.example.socketshootgame.connect.model.ModelBuilder;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
