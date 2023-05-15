@@ -38,7 +38,7 @@ public class TargetsController {
         big.setY(big.getY() + big_speed);
     }
 
-    void restart(){
+    void reset(){
         targets.clear();
     }
 
