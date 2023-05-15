@@ -3,8 +3,9 @@ package com.example.socketshootgame.connect;
 //информация о клиенте
 public class Player {
     private String playerName;
-    private int  arrowsShoot = 0;
-    private int pointsEarned = 0;
+    private int shoots = 0;
+    private int points = 0;
+    private int wins = 0;
     private boolean isReady = false;
     private boolean onPause = false;
     private boolean shooting = false;
@@ -14,19 +15,19 @@ public class Player {
     }
 
     public void increaseArrowsShoot(int a) {
-        this.arrowsShoot += a;
+        this.shoots += a;
     }
 
     public void reset() {
-        arrowsShoot = 0;
-        pointsEarned = 0;
+        shoots = 0;
+        points = 0;
         isReady = false;
         onPause = false;
         shooting = false;
     }
 
-    public void increasePointsEarned(int a) {
-        this.pointsEarned += a;
+    public void increasePoints(int a) {
+        this.points += a;
     }
 
     public String getPlayerName() {
@@ -34,11 +35,11 @@ public class Player {
     }
 
     public int getShoot() {
-        return arrowsShoot;
+        return shoots;
     }
 
     public int getPoints() {
-        return pointsEarned;
+        return points;
     }
 
     public boolean isReady() {
@@ -71,12 +72,20 @@ public class Player {
             shooting = false;
     }
 
-    public void setArrowsShoot(int arrowsShoot) {
-        this.arrowsShoot = arrowsShoot;
+    public int getWins() {
+        return wins;
     }
 
-    public void setPointsEarned(int pointsEarned) {
-        this.pointsEarned = pointsEarned;
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
+
+    public void setShoots(int shoots) {
+        this.shoots = shoots;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
     }
 
     public void setPlayerName(String playerName) {

@@ -1,5 +1,7 @@
 package com.example.socketshootgame.connect;
 
+//import com.example.socketshootgame.hibernate.DataBaseHibernate;
+//import com.example.socketshootgame.hibernate.IDataBase;
 import com.example.socketshootgame.resp.Request;
 import com.example.socketshootgame.resp.Sender;
 import com.example.socketshootgame.resp.ServReactions;
@@ -22,6 +24,8 @@ public class Server {
     Sender sender;
     Model model = ModelBuilder.build();
 
+
+
     public void bcast(){ //отправка данных на клиенты
         allClients.forEach(ClientAtServer::sendInfoToClient);
     }
@@ -31,6 +35,9 @@ public class Server {
             ip = InetAddress.getLocalHost();
             ss = new ServerSocket(port, 2, ip);
             System.out.println("Server start\n");
+
+            //DataBaseHibernate dataBase = new DataBaseHibernate();
+            //model.init(dataBase);
             model.init();
 
             while(true)
