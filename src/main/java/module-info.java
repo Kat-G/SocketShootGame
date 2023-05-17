@@ -1,11 +1,17 @@
-module com.example.javashooter {
+module com.example.socketshootgame {
     requires javafx.controls;
     requires javafx.fxml;
 
-    requires org.controlsfx.controls;
-    requires com.dlsc.formsfx;
-    requires org.kordamp.bootstrapfx.core;
+    requires javafx.graphics;
+    requires javafx.base;
     requires com.google.gson;
+
+    requires java.naming;
+    requires java.sql;
+    requires java.persistence;
+    requires org.hibernate.orm.core;
+    requires org.xerial.sqlitejdbc;
+    requires jakarta.persistence;
 
     opens com.example.socketshootgame to javafx.fxml;
     exports com.example.socketshootgame;
@@ -15,5 +21,9 @@ module com.example.javashooter {
     exports com.example.socketshootgame.resp;
     opens com.example.socketshootgame.resp to com.google.gson, javafx.fxml;
     opens com.example.socketshootgame.objects to com.google.gson;
+    exports com.example.socketshootgame.connect.controllers;
+    opens com.example.socketshootgame.connect.controllers to com.google.gson, javafx.fxml;
+    exports com.example.socketshootgame.connect.model;
+    opens com.example.socketshootgame.connect.model to com.google.gson, javafx.fxml;
 
 }

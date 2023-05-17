@@ -1,7 +1,9 @@
 package com.example.socketshootgame.connect;
 
-//import com.example.socketshootgame.hibernate.DataBaseHibernate;
-//import com.example.socketshootgame.hibernate.IDataBase;
+//import com.example.socketshootgame.connect.database.hibernate.DataBaseHibernate;
+//import com.example.socketshootgame.connect.database.hibernate.IDataBase;
+import com.example.socketshootgame.connect.database.hibernate.DataBaseHibernate;
+import com.example.socketshootgame.connect.database.jdbs.DataBase;
 import com.example.socketshootgame.connect.model.Model;
 import com.example.socketshootgame.connect.model.ModelBuilder;
 import com.example.socketshootgame.resp.Request;
@@ -37,9 +39,10 @@ public class Server {
             ss = new ServerSocket(port, 2, ip);
             System.out.println("Server start\n");
 
-            //DataBaseHibernate dataBase = new DataBaseHibernate();
-            //model.init(dataBase);
-            model.init();
+            //DataBase db = new DataBase();
+            DataBase dataBase = new DataBase();
+            model.init(this, dataBase);
+            //model.init();
 
             while(true)
             {

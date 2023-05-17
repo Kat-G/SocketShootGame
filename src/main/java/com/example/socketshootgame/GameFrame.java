@@ -11,13 +11,14 @@ import com.example.socketshootgame.objects.Info;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -41,6 +42,7 @@ public class GameFrame implements IObserver {
     @FXML
     private TextField textName;
     private Socket socket;
+    private boolean isShowTable = false;
     int port = 3124;
     InetAddress ip = null;
     Sender sender;
@@ -127,6 +129,10 @@ public class GameFrame implements IObserver {
     public void onShoot(MouseEvent mouseEvent) {
         sender.sendRequest(new Request(ClientActions.SHOOT));
     }
+    public void onScoreTable(MouseEvent mouseEvent) {
+        sender.sendRequest(new Request(ClientActions.SCORE_TABLE));
+        isShowTable = true;
+    }
 
     @Override
     public void update() {
@@ -135,6 +141,45 @@ public class GameFrame implements IObserver {
         updatePlayersInfo(m.getClients());
         updatePlayers(m.getClients());
         updateArrows(m.getArrows());
+        if (isShowTable && m.getEntitiesList() != null && m.getEntitiesList().size() != 0) {
+            alertPlayersTable();
+            isShowTable = false;
+        }
+    }
+
+    private void alertPlayersTable() {
+        m.getEntitiesList().forEach(System.out::println);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                TableView tableView = new TableView();
+
+                TableColumn<Player, String> column1 =
+                        new TableColumn<>("Имя");
+
+                column1.setCellValueFactory(
+                        new PropertyValueFactory<>("playerName"));
+
+
+                TableColumn<Player, String> column2 =
+                        new TableColumn<>("Победы");
+
+                column2.setCellValueFactory(
+                        new PropertyValueFactory<>("wins"));
+
+                tableView.getColumns().add(column1);
+                tableView.getColumns().add(column2);
+
+                m.getEntitiesList().forEach(tableView.getItems()::add);
+
+                VBox vbox = new VBox(tableView);
+                Scene scene = new Scene(vbox);
+                Stage stage = new Stage();
+                stage.setScene(scene);
+                stage.setTitle("Таблица лидеров");
+                stage.show();
+            }
+        });
     }
 
     private void checkWinner() {

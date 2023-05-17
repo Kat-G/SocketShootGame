@@ -1,7 +1,7 @@
 package com.example.socketshootgame.connect.model;
 
-//import com.example.socketshootgame.hibernate.IDataBase;
-//import com.example.socketshootgame.hibernate.PlayersTable;
+//import com.example.socketshootgame.connect.database.hibernate.IDataBase;
+//import com.example.socketshootgame.connect.database.hibernate.PlayersTable;
 import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.connect.Player;
 import com.example.socketshootgame.connect.Server;
@@ -9,6 +9,9 @@ import com.example.socketshootgame.connect.ShootState;
 import com.example.socketshootgame.connect.controllers.ArrowController;
 import com.example.socketshootgame.connect.controllers.PlayersController;
 import com.example.socketshootgame.connect.controllers.TargetsController;
+import com.example.socketshootgame.connect.database.hibernate.IDataBase;
+import com.example.socketshootgame.connect.database.hibernate.PlayersTable;
+import com.example.socketshootgame.connect.database.jdbs.DataBase;
 import com.example.socketshootgame.objects.Point;
 
 import java.util.ArrayList;
@@ -18,15 +21,17 @@ public class Model {
     private final ArrayList<IObserver> observers = new ArrayList<>(); //массив обозревателей
     private PlayersController players = new PlayersController();
     private TargetsController targets = new TargetsController();
-    //private ArrayList<Point> arrows = new ArrayList<>(); //массив стрел
     private ArrowController arrows = new ArrowController();
+
+    private ArrayList<Player> entitiesList = new ArrayList<>();
     int ready;
     int pause;
     private String winner = null;
     private static int points_to_win = 2;
     private boolean Reset = true;
+    private Server s;
 
-    //IDataBase db;
+    DataBase db;
 
     public void update() //обновление наблюдателей
     {
@@ -35,16 +40,18 @@ public class Model {
         }
     }
 
-    // Начальная инициализация
-    /*
-    public void init(IDataBase dataBase) {
-        //this.db = dataBase;
-        //targets.add(new Point(400,280, 50));
-        //targets.add(new Point(500,280, 25));
-        targets = new TargetsController();
-        arrowsCountUpdate();
+    public void updateScoreTable() {
+        entitiesList = db.getAllPlayers();
+        s.bcast();
     }
-    */
+
+    // Начальная инициализация
+    public void init(Server s, DataBase dataBase) {
+        this.db = dataBase;
+        targets.init();
+        arrowsCountUpdate();
+        this.s = s;
+    }
 
     public void init() {
         targets.init();
@@ -53,17 +60,14 @@ public class Model {
 
     // Добавление клиентам стрел
     private synchronized void arrowsCountUpdate() {
-        //arrows.clear();
         arrows.reset();
 
         int clientsCount = players.getSize();
         for (int i = 1; i <= clientsCount; i++) {
             int step = 450 / (clientsCount + 1);
-            //arrows.add(new Point(0, step * i, 100));
             arrows.addArrow(new Point(0, step * i, 100));
         }
     }
-
 
     public void ready(Server s, String name) {
         ready = players.getReadySize(name);
@@ -88,9 +92,6 @@ public class Model {
     // Запрос на выстрел
     public void shoot(String name) {
         players.shoot(name);
-        /*
-        var player = findPlayer(name);
-        player.setShooting();*/
     }
 
     //запуск игры
@@ -116,11 +117,6 @@ public class Model {
                         for (Player player: players.getPlayers()) {
                             if (player.isShooting()){
                                 int index = players.getPlayers().indexOf(player);
-                                /*
-                                Point p = arrows.get(index); //получаем координату стрелы
-                                p.setX(p.getX() + arr_speed); //изменяем координату Х стрелы
-                                takeShoot(p, player); //проверка на выстрел
-                                */
                                 arrows.tryShoot(index,player,targets);
                                 checkWinner();
                             }
@@ -143,44 +139,12 @@ public class Model {
     private void restart() {
         Reset = true;;
         targets.reset();
-        //arrows.clear();
         arrows.reset();
 
         players.reset();
-        this.init();
-        //this.init(db);
+        //this.init();
+        this.init(s,db);
     }
-
-    //проверка на выстрел
-    private synchronized void takeShoot(Point p, Player player) {
-        ShootState shootState = checkHit(p); //проверка на попадание
-        switch (shootState) {
-            case BIG_SHOT: { player.increasePoints(1); break;}
-            case SMALL_SHOT: { player.increasePoints(2); break; }
-            case FLY: { return; }
-        }
-        p.setX(0); //возврат стрелы
-        //очистка списка
-        player.setShooting();
-        checkWinner();
-    }
-
-    //проверка на попадание
-    private synchronized ShootState checkHit(Point p) {
-
-        if (targets.containsBig(p.getX() + p.getR(), p.getY())){
-            return ShootState.BIG_SHOT;
-        }
-
-        if (targets.containsSmall(p.getX() + p.getR(), p.getY())){
-            return ShootState.SMALL_SHOT;
-        }
-        if (p.getX() > 450) {
-            return ShootState.MISSED;
-        }
-        return ShootState.FLY;
-    }
-
 
     private synchronized void checkWinner() {
         for (Player p : players.getPlayers() ){
@@ -188,6 +152,7 @@ public class Model {
                 this.winner = p.getPlayerName();
                 restart();
                 p.setWins(p.getWins() + 1);
+                db.setPlayerWins(p);
 
                 /*
                 PlayersTable pt = new PlayersTable();
@@ -206,8 +171,8 @@ public class Model {
         this.winner = winner;
     }
     public void addClient(Player clientData) {
-        //players.add(clientData);
         players.addPlayer(clientData);
+        db.addPlayer(clientData);
         this.arrowsCountUpdate();
     }
     public  void addObserver(IObserver o)
@@ -216,12 +181,10 @@ public class Model {
     }
 
     public ArrayList<Player> getClients() {
-        //return players;
         return players.getPlayers();
     }
 
     public void setClients(ArrayList<Player> clientArrayList) {
-        //this.players = clientArrayList;
         this.players.setPlayers(clientArrayList);
     }
 
@@ -235,14 +198,19 @@ public class Model {
     }
 
     public ArrayList<Point> getArrows() {
-        //return arrows;
         return arrows.getArrows();
     }
 
     public void setArrows(ArrayList<Point> arrowArrayList) {
-        //this.arrows = arrowArrayList;
         this.arrows.setArrows(arrowArrayList);
     }
 
+    public ArrayList<Player> getEntitiesList() {
+        return entitiesList;
+    }
+
+    public void setEntitiesList(ArrayList<Player> entitiesList) {
+        this.entitiesList = entitiesList;
+    }
 
 }

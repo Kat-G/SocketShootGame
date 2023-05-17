@@ -60,7 +60,9 @@ public class ClientAtServer implements Runnable{
                     model.shoot(getPlayerName());
                 }
 
-
+                if (msg.getClientActions() == ClientActions.SCORE_TABLE) {
+                    model.updateScoreTable();
+                }
             }
         } catch (IOException ignored) {
 
