@@ -11,6 +11,6 @@ public class Response {
     public ArrayList<Player> clients;
     public ArrayList<Point> arrows;
     public ArrayList<Point> targets;
-
+    public ArrayList<Player> liders;
     public String winner;
 }

@@ -1,16 +1,12 @@
 package com.example.socketshootgame.connect.model;
 
-//import com.example.socketshootgame.connect.database.hibernate.IDataBase;
-//import com.example.socketshootgame.connect.database.hibernate.PlayersTable;
 import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.connect.Player;
 import com.example.socketshootgame.connect.Server;
-import com.example.socketshootgame.connect.ShootState;
 import com.example.socketshootgame.connect.controllers.ArrowController;
 import com.example.socketshootgame.connect.controllers.PlayersController;
 import com.example.socketshootgame.connect.controllers.TargetsController;
-import com.example.socketshootgame.connect.database.hibernate.IDataBase;
-import com.example.socketshootgame.connect.database.hibernate.PlayersTable;
+import com.example.socketshootgame.connect.controllers.WinnersController;
 import com.example.socketshootgame.connect.database.jdbs.DataBase;
 import com.example.socketshootgame.objects.Point;
 
@@ -19,15 +15,14 @@ import java.util.ArrayList;
 public class Model {
 
     private final ArrayList<IObserver> observers = new ArrayList<>(); //массив обозревателей
-    private PlayersController players = new PlayersController();
-    private TargetsController targets = new TargetsController();
-    private ArrowController arrows = new ArrowController();
-
-    private ArrayList<Player> entitiesList = new ArrayList<>();
+    private final PlayersController players = new PlayersController();
+    private final TargetsController targets = new TargetsController();
+    private final ArrowController arrows = new ArrowController();
+    private final WinnersController winners = new WinnersController();
+    //private ArrayList<Player> entitiesList = new ArrayList<>();
     int ready;
     int pause;
     private String winner = null;
-    private static int points_to_win = 2;
     private boolean Reset = true;
     private Server s;
 
@@ -41,7 +36,8 @@ public class Model {
     }
 
     public void updateScoreTable() {
-        entitiesList = db.getAllPlayers();
+        //entitiesList = db.getAllPlayers();
+        winners.setWinners(db.getAllPlayers());
         s.bcast();
     }
 
@@ -99,7 +95,6 @@ public class Model {
         new Thread(
                 ()->
                 {
-                    int arr_speed = 7;
                     while (true) {
                         if (Reset) {
                             winner = null;
@@ -140,25 +135,29 @@ public class Model {
         Reset = true;;
         targets.reset();
         arrows.reset();
-
         players.reset();
         //this.init();
         this.init(s,db);
     }
 
     private synchronized void checkWinner() {
-        for (Player p : players.getPlayers() ){
-            if (p.getPoints() >= points_to_win){
-                this.winner = p.getPlayerName();
+        for (Player player : players.getPlayers() ){
+            int points_to_win = 2;
+            if (player.getPoints() >= points_to_win){
+                this.winner = player.getPlayerName();
                 restart();
-                p.setWins(p.getWins() + 1);
-                db.setPlayerWins(p);
-
                 /*
-                PlayersTable pt = new PlayersTable();
-                pt.setPlayerName(p.getPlayerName());
-                pt.setWins(pt.getWins());
-                db.setPlayerWins(pt);*/
+                Player p = entitiesList.stream()
+                        .filter(entity -> entity.getPlayerName().equals(winner))
+                        .findFirst()
+                        .orElse(null);
+                assert p != null;*/
+                Player p = winners.findWinner(winner);
+                p.setWins(p.getWins() + 1);
+
+                //db.addPlayer(new PlayersTable(player.getPlayerName(),player.getWins()));
+
+                db.setPlayerWins(p);
             }
         }
     }
@@ -170,9 +169,12 @@ public class Model {
     public void setWinner(String winner) {
         this.winner = winner;
     }
-    public void addClient(Player clientData) {
-        players.addPlayer(clientData);
-        db.addPlayer(clientData);
+    public void addClient(Player player) {
+        db.addPlayer(player);
+        player.setWins(db.getPlayerWins(player));
+        winners.addWinner(player);
+        //entitiesList.add(player);
+        players.addPlayer(player);
         this.arrowsCountUpdate();
     }
     public  void addObserver(IObserver o)
@@ -205,12 +207,14 @@ public class Model {
         this.arrows.setArrows(arrowArrayList);
     }
 
-    public ArrayList<Player> getEntitiesList() {
-        return entitiesList;
+    public ArrayList<Player> getWinners() {
+        //return entitiesList;
+        return winners.getWinners();
     }
 
     public void setEntitiesList(ArrayList<Player> entitiesList) {
-        this.entitiesList = entitiesList;
+        winners.setWinners(entitiesList);
+        //this.entitiesList = entitiesList;
     }
 
 }

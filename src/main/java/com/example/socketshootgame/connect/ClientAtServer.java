@@ -2,7 +2,6 @@ package com.example.socketshootgame.connect;
 
 import com.example.socketshootgame.connect.model.Model;
 import com.example.socketshootgame.connect.model.ModelBuilder;
-import com.example.socketshootgame.resp.ClientActions;
 import com.example.socketshootgame.resp.Request;
 import com.example.socketshootgame.resp.Sender;
 import com.example.socketshootgame.resp.Response;
@@ -15,16 +14,16 @@ public class ClientAtServer implements Runnable{
     Server server;
     Sender sender;
     Model model = ModelBuilder.build();
-    Player clientData;
+    Player player;
 
     public ClientAtServer(Socket socket, Server server, String playerName)  {
         this.socket = socket;
         this.server = server;
-        clientData = new Player(playerName);
+        player = new Player(playerName);
         sender = new Sender(socket);
     }
     public String getPlayerName() {
-        return clientData.getPlayerName();
+        return player.getPlayerName();
     }
 
     public void sendInfoToClient() {
@@ -33,43 +32,35 @@ public class ClientAtServer implements Runnable{
         serverResp.arrows = model.getArrows();
         serverResp.targets = model.getTargets();
         serverResp.winner = model.getWinner();
+        serverResp.liders = model.getWinners();
         sender.sendResp(serverResp);
     }
 
     @Override
     public void run() {
         try {
-            System.out.println("Cilent thread " + clientData.getPlayerName() + " started");
-            model.addClient(clientData);
+            System.out.println("Cilent thread " + player.getPlayerName() + " started");
+            model.addClient(player);
             server.bcast();
 
             while(true)
             {
                 Request msg = sender.getRequest();
 
-                if(msg.getClientActions() == ClientActions.READY)
-                {
-                   model.ready(server, this.getPlayerName());
-                }
+                switch (msg.getClientActions()){
+                    case STOP: {  model.pause(this.getPlayerName()); break; }
+                    case READY: { model.ready(server, this.getPlayerName()); break; }
+                    case SHOOT: { model.shoot(getPlayerName()); break;}
+                    case SCORE_TABLE: { model.updateScoreTable(); break; }
 
-                if(msg.getClientActions() == ClientActions.STOP)
-                {
-                    model.pause(getPlayerName());
-                }
-                if (msg.getClientActions() == ClientActions.SHOOT) {
-                    model.shoot(getPlayerName());
-                }
-
-                if (msg.getClientActions() == ClientActions.SCORE_TABLE) {
-                    model.updateScoreTable();
                 }
             }
         } catch (IOException ignored) {
 
         }
     }
-    public Player getClientData() {
-        return clientData;
+    public Player getPlayer() {
+        return player;
     }
 
 }

@@ -78,6 +78,7 @@ public class GameFrame implements IObserver {
                                     m.setTargets(ra.targets);
                                     m.setClients(ra.clients);
                                     m.setArrows(ra.arrows);
+                                    m.setEntitiesList(ra.liders);
                                     m.setWinner(ra.winner);
                                     m.update();
                                 }
@@ -130,6 +131,7 @@ public class GameFrame implements IObserver {
         sender.sendRequest(new Request(ClientActions.SHOOT));
     }
     public void onScoreTable(MouseEvent mouseEvent) {
+
         sender.sendRequest(new Request(ClientActions.SCORE_TABLE));
         isShowTable = true;
     }
@@ -141,14 +143,13 @@ public class GameFrame implements IObserver {
         updatePlayersInfo(m.getClients());
         updatePlayers(m.getClients());
         updateArrows(m.getArrows());
-        if (isShowTable && m.getEntitiesList() != null && m.getEntitiesList().size() != 0) {
+        if (isShowTable && m.getWinners() != null) {
             alertPlayersTable();
             isShowTable = false;
         }
     }
 
     private void alertPlayersTable() {
-        m.getEntitiesList().forEach(System.out::println);
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -170,7 +171,7 @@ public class GameFrame implements IObserver {
                 tableView.getColumns().add(column1);
                 tableView.getColumns().add(column2);
 
-                m.getEntitiesList().forEach(tableView.getItems()::add);
+                m.getWinners().forEach(tableView.getItems()::add);
 
                 VBox vbox = new VBox(tableView);
                 Scene scene = new Scene(vbox);
