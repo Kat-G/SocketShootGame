@@ -3,6 +3,7 @@ package com.example.socketshootgame;
 import com.example.socketshootgame.connect.Player;
 import com.example.socketshootgame.connect.model.Model;
 import com.example.socketshootgame.connect.model.ModelBuilder;
+import com.example.socketshootgame.objects.TableScore;
 import com.example.socketshootgame.resp.*;
 import com.example.socketshootgame.connect.IObserver;
 import com.example.socketshootgame.objects.Arrow;
@@ -32,8 +33,11 @@ public class GameFrame implements IObserver {
     private Pane gamePane;
     @FXML
     private VBox playersBox;
+    @FXML
+    private VBox winnersBox;
     ArrayList<Button> players = new ArrayList<>();
     ArrayList<VBox> playersInfo = new ArrayList<>();
+    ArrayList<VBox> winnersInfo = new ArrayList<>();
     ArrayList<Arrow> arrows = new ArrayList<>();
     ArrayList<Circle> targets = new ArrayList<>();
 
@@ -153,27 +157,10 @@ public class GameFrame implements IObserver {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                TableView tableView = new TableView();
+                TableView tableScore = new TableScore().create();
+                m.getWinners().forEach(tableScore.getItems()::add);
 
-                TableColumn<Player, String> column1 =
-                        new TableColumn<>("Имя");
-
-                column1.setCellValueFactory(
-                        new PropertyValueFactory<>("playerName"));
-
-
-                TableColumn<Player, String> column2 =
-                        new TableColumn<>("Победы");
-
-                column2.setCellValueFactory(
-                        new PropertyValueFactory<>("wins"));
-
-                tableView.getColumns().add(column1);
-                tableView.getColumns().add(column2);
-
-                m.getWinners().forEach(tableView.getItems()::add);
-
-                VBox vbox = new VBox(tableView);
+                VBox vbox = new VBox(tableScore);
                 Scene scene = new Scene(vbox);
                 Stage stage = new Stage();
                 stage.setScene(scene);
