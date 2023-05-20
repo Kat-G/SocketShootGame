@@ -19,7 +19,6 @@ public class Model {
     private final TargetsController targets = new TargetsController();
     private final ArrowController arrows = new ArrowController();
     private final WinnersController winners = new WinnersController();
-    //private ArrayList<Player> entitiesList = new ArrayList<>();
     int ready;
     int pause;
     private String winner = null;
@@ -28,7 +27,7 @@ public class Model {
 
     DataBase db;
 
-    public void update() //обновление наблюдателей
+    public void update()
     {
         for (IObserver o : observers) {
             o.update();
@@ -36,25 +35,21 @@ public class Model {
     }
 
     public void updateScoreTable() {
-        //entitiesList = db.getAllPlayers();
         winners.setWinners(db.getAllPlayers());
         s.bcast();
     }
 
-    // Начальная инициализация
     public void init(Server s, DataBase dataBase) {
         this.db = dataBase;
         targets.init();
         arrowsCountUpdate();
         this.s = s;
     }
-
     public void init() {
         targets.init();
         arrowsCountUpdate();
     }
 
-    // Добавление клиентам стрел
     private synchronized void arrowsCountUpdate() {
         arrows.reset();
 
@@ -74,23 +69,20 @@ public class Model {
         }
     }
 
-    // Запрос на паузу
     public void pause(String name) {
         pause = players.getPauseSize(name);
 
-        if (pause == 0){ //если список пуст
+        if (pause == 0){
             synchronized(this) {
-                notifyAll();         //пробуждаем потоки
+                notifyAll();
             }
         }
     }
 
-    // Запрос на выстрел
     public void shoot(String name) {
         players.shoot(name);
     }
 
-    //запуск игры
     public void start(Server s) {
         new Thread(
                 ()->
@@ -100,10 +92,10 @@ public class Model {
                             winner = null;
                             break;
                         }
-                        if (pause != 0) {  //если список паузы не пуст
+                        if (pause != 0) {
                             synchronized(this) {
                                 try {
-                                    wait();             //ожидаем
+                                    wait();
                                 } catch(InterruptedException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -116,7 +108,6 @@ public class Model {
                                 checkWinner();
                             }
                         }
-                        //передвижение мишеней
                         targets.move();
 
                         s.bcast(); //отправка данных с сервера на клиенты
@@ -127,7 +118,7 @@ public class Model {
                         }
                     }
                 }
-        ).start(); //запуск потока
+        ).start();
 
     }
 
@@ -136,7 +127,6 @@ public class Model {
         targets.reset();
         arrows.reset();
         players.reset();
-        //this.init();
         this.init(s,db);
     }
 
@@ -146,17 +136,9 @@ public class Model {
             if (player.getPoints() >= points_to_win){
                 this.winner = player.getPlayerName();
                 restart();
-                /*
-                Player p = entitiesList.stream()
-                        .filter(entity -> entity.getPlayerName().equals(winner))
-                        .findFirst()
-                        .orElse(null);
-                assert p != null;*/
+
                 Player p = winners.findWinner(winner);
                 p.setWins(p.getWins() + 1);
-
-                //db.addPlayer(new PlayersTable(player.getPlayerName(),player.getWins()));
-
                 db.setPlayerWins(p);
             }
         }
@@ -173,7 +155,6 @@ public class Model {
         db.addPlayer(player);
         player.setWins(db.getPlayerWins(player));
         winners.addWinner(player);
-        //entitiesList.add(player);
         players.addPlayer(player);
         this.arrowsCountUpdate();
     }
@@ -208,13 +189,11 @@ public class Model {
     }
 
     public ArrayList<Player> getWinners() {
-        //return entitiesList;
         return winners.getWinners();
     }
 
     public void setEntitiesList(ArrayList<Player> entitiesList) {
         winners.setWinners(entitiesList);
-        //this.entitiesList = entitiesList;
     }
 
 }

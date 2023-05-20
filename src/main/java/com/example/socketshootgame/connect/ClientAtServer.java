@@ -32,7 +32,7 @@ public class ClientAtServer implements Runnable{
         serverResp.arrows = model.getArrows();
         serverResp.targets = model.getTargets();
         serverResp.winner = model.getWinner();
-        serverResp.liders = model.getWinners();
+        serverResp.winners = model.getWinners();
         sender.sendResp(serverResp);
     }
 

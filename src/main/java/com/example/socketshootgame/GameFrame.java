@@ -14,7 +14,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -33,11 +32,8 @@ public class GameFrame implements IObserver {
     private Pane gamePane;
     @FXML
     private VBox playersBox;
-    @FXML
-    private VBox winnersBox;
     ArrayList<Button> players = new ArrayList<>();
     ArrayList<VBox> playersInfo = new ArrayList<>();
-    ArrayList<VBox> winnersInfo = new ArrayList<>();
     ArrayList<Arrow> arrows = new ArrayList<>();
     ArrayList<Circle> targets = new ArrayList<>();
 
@@ -82,7 +78,7 @@ public class GameFrame implements IObserver {
                                     m.setTargets(ra.targets);
                                     m.setClients(ra.clients);
                                     m.setArrows(ra.arrows);
-                                    m.setEntitiesList(ra.liders);
+                                    m.setEntitiesList(ra.winners);
                                     m.setWinner(ra.winner);
                                     m.update();
                                 }
@@ -94,12 +90,10 @@ public class GameFrame implements IObserver {
                         }
                 ).start();
                 dataInit(socket,textName.getText());
-                textName.setText("");
             } else {
                 alertError(msg.getServReactions());
-                textName.setText("");
             }
-
+            textName.setText("");
         } catch (IOException ignored) {   }
     }
 
@@ -135,7 +129,6 @@ public class GameFrame implements IObserver {
         sender.sendRequest(new Request(ClientActions.SHOOT));
     }
     public void onScoreTable(MouseEvent mouseEvent) {
-
         sender.sendRequest(new Request(ClientActions.SCORE_TABLE));
         isShowTable = true;
     }
@@ -202,13 +195,6 @@ public class GameFrame implements IObserver {
                         c.getStyleClass().add("targets");
                         targets.add(c);
                         gamePane.getChildren().add(c);
-                    } else if (a.size() > targets.size()){
-                        for (int j = 0; j < a.size() - targets.size(); j++) {
-                            targets.remove(targets.size() - 1);
-                            gamePane.getChildren().remove(
-                                    gamePane.getChildren().size() - 1
-                            );
-                        }
                     }
                     else {
                         targets.get(i).setRadius(a.get(i).getR());

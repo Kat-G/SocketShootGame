@@ -22,7 +22,7 @@ public class Server {
     int port = 3124;
     InetAddress ip = null;
     ExecutorService service = Executors.newFixedThreadPool(4); //ограничиваем кол-во клиентких потоков 4
-    ArrayList<ClientAtServer> allClients = new ArrayList<>(); //массив клиентов
+    ArrayList<ClientAtServer> allClients = new ArrayList<>();
 
     Sender sender;
     Model model = ModelBuilder.build();
@@ -39,10 +39,8 @@ public class Server {
             ss = new ServerSocket(port, 2, ip);
             System.out.println("Server start\n");
 
-            //DataBase db = new DataBase();
             DataBase dataBase = new DataBase();
             model.init(this, dataBase);
-            //model.init();
 
             while(true)
             {
@@ -51,10 +49,10 @@ public class Server {
                 sender = new Sender(cs);
                 Request msg = sender.getRequest();
                 String respName = msg.getPlayerName();
-                if (tryAddClient(cs, respName)) { //попытка подключения клиента
+                if (tryAddClient(cs, respName)) {
                     System.out.println(respName + " Connected");
                 } else {
-                    cs.close(); //если нет, закрываем сокет
+                    cs.close();
                 }
             }
 
@@ -66,15 +64,15 @@ public class Server {
              sender.sendRequest(new Request(ServReactions.MaxConnectError));
              return false;
          }
-         if (allClients.isEmpty() || //если список клиентов пуст или не содержит такого же имени
+         if (allClients.isEmpty() ||
                  allClients.stream()
                 .filter(clientAtServer -> clientAtServer.getPlayerName().equals(name))
                 .findFirst()
                 .orElse(null) == null) {
              sender.sendRequest(new Request(ServReactions.Accept));
-             ClientAtServer c = new ClientAtServer(sock, this, name); //создание нового клиента
-             allClients.add(c); //добавление в лист клиентов
-             service.submit(c); //сообщаем серверу о подключении клиента
+             ClientAtServer c = new ClientAtServer(sock, this, name);
+             allClients.add(c);
+             service.submit(c);
              return true;
          }
         sender.sendRequest(new Request(ServReactions.DuplicateNameError));

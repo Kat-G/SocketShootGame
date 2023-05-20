@@ -14,7 +14,7 @@ public class Player {
         this.playerName = playerName;
     }
 
-    public void increaseArrowsShoot(int a) {
+    public void addShoot(int a) {
         this.shoots += a;
     }
 
@@ -26,7 +26,7 @@ public class Player {
         shooting = false;
     }
 
-    public void increasePoints(int a) {
+    public void addPoints(int a) {
         this.points += a;
     }
 
@@ -66,7 +66,7 @@ public class Player {
         if (!shooting)
         {
             shooting = true;
-            increaseArrowsShoot(1);
+            addShoot(1);
         }
         else
             shooting = false;

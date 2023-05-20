@@ -19,8 +19,8 @@ public class ArrowController {
 
         ShootState shootState = checkHit(p, targets); //проверка на попадание
         switch (shootState) {
-            case BIG_SHOT: { player.increasePoints(1); break;}
-            case SMALL_SHOT: { player.increasePoints(2); break; }
+            case BIG_SHOT: { player.addPoints(1); break;}
+            case SMALL_SHOT: { player.addPoints(2); break; }
             case FLY: { return; }
         }
         p.setX(0); //возврат стрелы
