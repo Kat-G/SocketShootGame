@@ -11,21 +11,15 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-/**
- * TO DO!
- * При добавлении игрока считывать его с бд, если он уже существует, обновлять его выигрыши
- * Посмотреть что не так в отображении таблицы выигрышей
- */
-
 public class DataBase {
     Connection c;
-    private final String url = "jdbc:postgresql://localhost:5432/score_table";
-    private final String user = "postgres";
-    private final String password = "1234";
 
     public DataBase() {
         try {
             Class.forName("org.postgresql.Driver");
+            String url = "jdbc:postgresql://localhost:5432/score_table";
+            String user = "postgres";
+            String password = "1234";
             c = DriverManager.getConnection(url, user, password);
             System.out.println("Connected to the PostgreSQL server successfully");
         } catch (ClassNotFoundException | SQLException e) {

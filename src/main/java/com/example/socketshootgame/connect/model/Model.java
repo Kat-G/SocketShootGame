@@ -45,11 +45,6 @@ public class Model {
         arrowsCountUpdate();
         this.s = s;
     }
-    public void init() {
-        targets.init();
-        arrowsCountUpdate();
-    }
-
     private synchronized void arrowsCountUpdate() {
         arrows.reset();
 
@@ -123,7 +118,7 @@ public class Model {
     }
 
     private void restart() {
-        Reset = true;;
+        Reset = true;
         targets.reset();
         arrows.reset();
         players.reset();

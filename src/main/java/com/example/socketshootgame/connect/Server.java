@@ -1,8 +1,5 @@
 package com.example.socketshootgame.connect;
 
-//import com.example.socketshootgame.connect.database.hibernate.DataBaseHibernate;
-//import com.example.socketshootgame.connect.database.hibernate.IDataBase;
-import com.example.socketshootgame.connect.database.hibernate.DataBaseHibernate;
 import com.example.socketshootgame.connect.database.jdbs.DataBase;
 import com.example.socketshootgame.connect.model.Model;
 import com.example.socketshootgame.connect.model.ModelBuilder;

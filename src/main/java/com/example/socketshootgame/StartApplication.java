@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class StartApplication extends Application {
-    Model m = ModelBuilder.build();
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ClientFrame.fxml"));
@@ -22,7 +21,6 @@ public class StartApplication extends Application {
         stage.setTitle("SocketShootGame");
         stage.setScene(scene);
         stage.show();
-        //((Node)(event.getSource())).getScene().getWindow().hide();
 
         GameFrame clientFrame = fxmlLoader.getController();
 

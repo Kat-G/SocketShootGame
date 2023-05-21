@@ -12,6 +12,7 @@ module com.example.socketshootgame {
     requires org.hibernate.orm.core;
     requires org.xerial.sqlitejdbc;
     requires jakarta.persistence;
+    requires org.postgresql.jdbc;
 
     opens com.example.socketshootgame to javafx.fxml;
     exports com.example.socketshootgame;
